@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senior Developer Interview — Code Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f13;
+    --bg2: #13161d;
+    --bg3: #1a1e28;
+    --bg4: #20263a;
+    --border: #2a3050;
+    --border2: #3a4470;
+    --text: #c8d0e8;
+    --text2: #7a86a8;
+    --text3: #4a5470;
+    --accent: #4f8ef7;
+    --accent2: #3a6fd4;
+    --green: #3dd68c;
+    --green2: #1a8c54;
+    --red: #f75f5f;
+    --red2: #c23c3c;
+    --yellow: #f7c948;
+    --yellow2: #b8952a;
+    --purple: #a98ef7;
+    --cyan: #4fd6c8;
+    --highlight-bug: rgba(247, 95, 95, 0.18);
+    --highlight-bug-border: rgba(247, 95, 95, 0.6);
+    --highlight-sel: rgba(79, 142, 247, 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .header-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  .header-title {
+    font-size: 15px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text);
+  }
+  .header-right {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .timer {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--bg3);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .timer-label {
+    font-family: 'Roboto', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2);
+  }
+  .timer-value {
+    min-width: 46px; text-align: right; font-size: 14px;
+    font-weight: 700; color: var(--green);
+  }
+  .timer.warning .timer-value { color: var(--yellow); }
+  .timer.danger .timer-value { color: var(--red); }
+  .progress-pills {
+    display: flex; gap: 6px;
+  }
+  .progress-pill {
+    width: 32px; height: 4px; border-radius: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .progress-pill.active { background: var(--accent); }
+  .progress-pill.done { background: var(--green); }
+
+  /* ── Layout ── */
+  .page { max-width: 1080px; margin: 0 auto; padding: 48px 40px 120px; }
+
+  /* ── Challenge nav ── */
+  .challenge-nav {
+    display: flex; gap: 8px; margin-bottom: 40px;
+  }
+  .challenge-tab {
+    padding: 8px 20px; border-radius: 6px;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text2); font-family: 'Roboto', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .challenge-tab:hover { border-color: var(--border2); color: var(--text); }
+  .challenge-tab.active {
+    background: var(--accent2); border-color: var(--accent);
+    color: #fff;
+  }
+  .challenge-tab.completed {
+    border-color: var(--green2); color: var(--green);
+  }
+  .challenge-tab.skipped {
+    border-color: var(--yellow2); color: var(--yellow);
+  }
+  .challenge-tab.locked {
+    opacity: 0.45; cursor: not-allowed;
+  }
+  .challenge-tab.locked:hover {
+    border-color: var(--border); color: var(--text2);
+  }
+
+  /* ── Challenge panel ── */
+  .challenge-panel { display: none; }
+  .challenge-panel.active { display: block; }
+
+  .challenge-header {
+    margin-bottom: 28px;
+  }
+  .challenge-meta {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .badge {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 4px;
+  }
+  .badge-lang { background: #1a2845; color: var(--accent); border: 1px solid #2a4070; }
+  .badge-hard { background: #2a1a1a; color: var(--red); border: 1px solid #502020; }
+  .badge-mid  { background: #2a2010; color: var(--yellow); border: 1px solid #503010; }
+  .badge-dom  { background: #1a2830; color: var(--cyan); border: 1px solid #204050; }
+
+  .challenge-title {
+    font-size: 26px; font-weight: 800; color: #fff;
+    line-height: 1.2; margin-bottom: 8px;
+  }
+  .challenge-desc {
+    font-size: 15px; color: var(--text2); max-width: 680px;
+    line-height: 1.7;
+  }
+
+  /* ── Instructions strip ── */
+  .instructions {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 14px 18px;
+    margin-bottom: 24px; display: flex; gap: 20px;
+    flex-wrap: wrap;
+  }
+  .instr-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--text2);
+  }
+  .instr-icon {
+    width: 20px; height: 20px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .instr-icon.click { background: rgba(247,95,95,0.15); color: var(--red); }
+  .instr-icon.note  { background: rgba(79,142,247,0.15); color: var(--accent); }
+
+  /* ── Code block ── */
+  .code-wrapper {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .code-titlebar {
+    background: var(--bg3); border-bottom: 1px solid var(--border);
+    padding: 10px 16px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-filename {
+    font-size: 12px; color: var(--text2); letter-spacing: 0.04em;
+  }
+  .code-hint {
+    font-size: 11px; color: var(--text3);
+  }
+
+  .code-body {
+    overflow-x: auto;
+  }
+  table.code-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; line-height: 1.65;
+  }
+  table.code-table tr {
+    cursor: pointer; transition: background 0.12s;
+  }
+  table.code-table tr:hover .code-line {
+    background: rgba(255,255,255,0.03);
+  }
+  table.code-table tr.marked {
+    background: var(--highlight-bug) !important;
+  }
+  table.code-table tr.marked .code-line {
+    background: transparent !important;
+  }
+  table.code-table tr.marked td.ln::before {
+    content: '⚑';
+    color: var(--red);
+    position: absolute; left: 4px;
+  }
+
+  td.ln {
+    position: relative;
+    width: 44px; min-width: 44px;
+    padding: 0 12px 0 20px;
+    text-align: right;
+    color: var(--text3);
+    user-select: none;
+    border-right: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: top;
+  }
+  td.code-line {
+    padding: 1px 20px 1px 16px;
+    white-space: pre;
+    color: var(--text);
+  }
+
+  /* Syntax highlighting */
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .cls { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+  .prp { color: #f07178; }
+
+  /* ── Notes ── */
+  .notes-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text2); margin-bottom: 8px;
+    display: block;
+  }
+  .notes-area {
+    width: 100%; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; padding: 14px 16px; resize: vertical; min-height: 90px;
+    outline: none; transition: border-color 0.2s; line-height: 1.6;
+  }
+  .notes-area:focus { border-color: var(--border2); }
+  .notes-area::placeholder { color: var(--text3); }
+
+  /* ── Submit btn ── */
+  .submit-row {
+    display: flex; align-items: center; gap: 16px; margin-top: 20px;
+  }
+  .btn-submit {
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 8px;
+    padding: 12px 32px; font-family: 'Roboto', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-clear {
+    background: transparent; color: var(--text2);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 20px; font-family: 'Roboto', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-clear:hover { border-color: var(--border2); color: var(--text); }
+  .btn-skip {
+    background: rgba(247, 201, 72, 0.08); color: var(--yellow);
+    border: 1px solid rgba(247, 201, 72, 0.28); border-radius: 8px;
+    padding: 12px 20px; font-family: 'Roboto', sans-serif;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-skip:hover { background: rgba(247, 201, 72, 0.14); border-color: var(--yellow2); }
+  .btn-skip:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .marked-count {
+    font-size: 13px; color: var(--text2);
+    margin-left: auto;
+  }
+  .marked-count span { color: var(--red); font-weight: 700; }
+
+  /* ── Answers panel ── */
+  .answers-panel {
+    display: none; margin-top: 36px;
+    animation: fadeSlide 0.4s ease;
+  }
+  .answers-panel.visible { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .answers-divider {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+  }
+  .answers-divider-line {
+    flex: 1; height: 1px; background: var(--border);
+  }
+  .answers-divider-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text2);
+  }
+
+  .score-bar {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 24px;
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 28px;
+  }
+  .score-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: var(--green);
+    flex-shrink: 0;
+  }
+  .score-circle.mid  { border-color: var(--yellow); color: var(--yellow); }
+  .score-circle.low  { border-color: var(--red);    color: var(--red);    }
+  .score-info {}
+  .score-verdict {
+    font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px;
+  }
+  .score-detail { font-size: 14px; color: var(--text2); }
+  .final-results {
+    display: none; margin-top: 36px;
+  }
+  .final-results.visible { display: block; }
+  .result-section-title {
+    font-size: 18px; font-weight: 800; color: #fff;
+    margin: 28px 0 14px;
+  }
+  .result-section-title span {
+    color: var(--text2); font-size: 13px; font-weight: 500;
+  }
+
+  .bug-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 10px; margin-bottom: 16px; overflow: hidden;
+  }
+  .bug-card-header {
+    padding: 16px 20px; display: flex; align-items: flex-start;
+    gap: 16px; border-bottom: 1px solid var(--border);
+  }
+  .bug-number {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: rgba(247,95,95,0.12); border: 1px solid rgba(247,95,95,0.3);
+    color: var(--red); font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .bug-found-badge {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 4px;
+  }
+  .bug-found-badge.found {
+    background: rgba(61,214,140,0.1); color: var(--green);
+    border: 1px solid rgba(61,214,140,0.3);
+  }
+  .bug-found-badge.missed {
+    background: rgba(247,95,95,0.1); color: var(--red);
+    border: 1px solid rgba(247,95,95,0.3);
+  }
+  .bug-title {
+    font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 3px;
+  }
+  .bug-location {
+    font-size: 12px; color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .bug-card-body { padding: 18px 20px; }
+  .bug-section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text3); margin-bottom: 6px;
+  }
+  .bug-explanation {
+    font-size: 14px; color: var(--text2); line-height: 1.75;
+    margin-bottom: 16px;
+  }
+  .bug-code-snippet {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; line-height: 1.7;
+    color: var(--text); overflow-x: auto; margin-bottom: 16px;
+  }
+  .code-del {
+    background: rgba(247,95,95,0.12); color: #f7a0a0;
+    display: block; margin: 0 -16px; padding: 0 16px;
+  }
+  .code-add {
+    background: rgba(61,214,140,0.10); color: #7ee8b2;
+    display: block; margin: 0 -16px; padding: 0 16px;
+  }
+  .bug-why {
+    background: rgba(79,142,247,0.07); border: 1px solid rgba(79,142,247,0.15);
+    border-radius: 6px; padding: 12px 16px;
+  }
+  .bug-why-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+  }
+  .bug-why p { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+  /* highlighted lines in reveal */
+  .answer-line-highlight {
+    background: rgba(247,95,95,0.15) !important;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 720px) {
+    .page { padding: 24px 16px 80px; }
+    .header { padding: 0 16px; }
+    .challenge-title { font-size: 20px; }
+    td.code-line { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-brand">
+    <div class="header-dot"></div>
+    <span class="header-title">Code Challenge — Senior Dev Interview</span>
+  </div>
+  <div class="header-right">
+    <div class="timer" id="timer" aria-live="polite">
+      <span class="timer-label">Time left</span>
+      <span class="timer-value" id="timerValue">15:00</span>
+    </div>
+    <div class="progress-pills" id="progressPills"></div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- ── Challenge tabs ── -->
+  <div class="challenge-nav" id="challengeNav"></div>
+
+  <!-- ════════════════════ CHALLENGE 1 ════════════════════ -->
+  <div class="challenge-panel active" id="panel-0">
+    <div class="challenge-header">
+      <div class="challenge-meta">
+        <span class="badge badge-lang">Node.js</span>
+        <span class="badge badge-hard">Hard</span>
+        <span class="badge badge-dom">Async / Concurrency</span>
+      </div>
+      <h1 class="challenge-title">Async Task Queue with Retry & Caching</h1>
+      <p class="challenge-desc">A production-style async task queue with concurrency limiting, exponential-backoff retries, a TTL result cache, and a token-bucket rate limiter. It runs correctly in most cases — but contains serious hidden bugs. Find them.</p>
+    </div>
+
+    <div class="instructions">
+      <div class="instr-item"><div class="instr-icon click">⚑</div> Click any line to mark it as a suspected bug</div>
+      <div class="instr-item"><div class="instr-icon note">✎</div> Use the notes field to explain your findings</div>
+    </div>
+
+    <div class="code-wrapper">
+      <div class="code-titlebar">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#ff5f57"></div>
+          <div class="code-dot" style="background:#febc2e"></div>
+          <div class="code-dot" style="background:#28c840"></div>
+        </div>
+        <span class="code-filename">taskQueue.js</span>
+        <span class="code-hint">click a line to flag it</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table" id="code-0"></table>
+      </div>
+    </div>
+
+    <label class="notes-label">Your analysis & fixes</label>
+    <textarea class="notes-area" id="notes-0" placeholder="Describe the bugs you found, the conditions under which they manifest, and how you'd fix them…"></textarea>
+
+    <div class="submit-row">
+      <button class="btn-submit" onclick="submitChallenge(0)">Submit Answer</button>
+      <button class="btn-clear" onclick="clearChallenge(0)">Clear Marks</button>
+      <button class="btn-skip" onclick="skipChallenge(0)">Skip Section</button>
+      <span class="marked-count" id="markcount-0">Lines flagged: <span>0</span></span>
+    </div>
+
+    <div class="answers-panel" id="answers-0"></div>
+  </div>
+
+  <!-- ════════════════════ CHALLENGE 2 ════════════════════ -->
+  <div class="challenge-panel" id="panel-1">
+    <div class="challenge-header">
+      <div class="challenge-meta">
+        <span class="badge badge-lang">Node.js</span>
+        <span class="badge badge-hard">Hard</span>
+        <span class="badge badge-dom">Event Loop / Closures</span>
+      </div>
+      <h1 class="challenge-title">Event Emitter with Middleware Pipeline</h1>
+      <p class="challenge-desc">A custom event emitter that supports middleware-style pre/post hooks, once-listeners, and listener priority ordering. Looks clean — but there are subtle bugs that will silently misbehave in production.</p>
+    </div>
+
+    <div class="instructions">
+      <div class="instr-item"><div class="instr-icon click">⚑</div> Click any line to mark it as a suspected bug</div>
+      <div class="instr-item"><div class="instr-icon note">✎</div> Use the notes field to explain your findings</div>
+    </div>
+
+    <div class="code-wrapper">
+      <div class="code-titlebar">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#ff5f57"></div>
+          <div class="code-dot" style="background:#febc2e"></div>
+          <div class="code-dot" style="background:#28c840"></div>
+        </div>
+        <span class="code-filename">eventEmitter.js</span>
+        <span class="code-hint">click a line to flag it</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table" id="code-1"></table>
+      </div>
+    </div>
+
+    <label class="notes-label">Your analysis & fixes</label>
+    <textarea class="notes-area" id="notes-1" placeholder="Describe the bugs you found, the conditions under which they manifest, and how you'd fix them…"></textarea>
+
+    <div class="submit-row">
+      <button class="btn-submit" onclick="submitChallenge(1)">Submit Answer</button>
+      <button class="btn-clear" onclick="clearChallenge(1)">Clear Marks</button>
+      <button class="btn-skip" onclick="skipChallenge(1)">Skip Section</button>
+      <span class="marked-count" id="markcount-1">Lines flagged: <span>0</span></span>
+    </div>
+    <div class="answers-panel" id="answers-1"></div>
+  </div>
+
+  <!-- ════════════════════ CHALLENGE 3 ════════════════════ -->
+  <div class="challenge-panel" id="panel-2">
+    <div class="challenge-header">
+      <div class="challenge-meta">
+        <span class="badge badge-lang">Node.js</span>
+        <span class="badge badge-mid">Hard</span>
+        <span class="badge badge-dom">Data Structures</span>
+      </div>
+      <h1 class="challenge-title">LRU Cache with Frequency-Weighted Eviction</h1>
+      <p class="challenge-desc">An LRU cache augmented with frequency-weighted eviction: frequently accessed items are demoted more slowly. The logic is intricate — and contains bugs that will cause silent data corruption under load.</p>
+    </div>
+
+    <div class="instructions">
+      <div class="instr-item"><div class="instr-icon click">⚑</div> Click any line to mark it as a suspected bug</div>
+      <div class="instr-item"><div class="instr-icon note">✎</div> Use the notes field to explain your findings</div>
+    </div>
+
+    <div class="code-wrapper">
+      <div class="code-titlebar">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#ff5f57"></div>
+          <div class="code-dot" style="background:#febc2e"></div>
+          <div class="code-dot" style="background:#28c840"></div>
+        </div>
+        <span class="code-filename">lruCache.js</span>
+        <span class="code-hint">click a line to flag it</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table" id="code-2"></table>
+      </div>
+    </div>
+
+    <label class="notes-label">Your analysis & fixes</label>
+    <textarea class="notes-area" id="notes-2" placeholder="Describe the bugs you found, the conditions under which they manifest, and how you'd fix them…"></textarea>
+
+    <div class="submit-row">
+      <button class="btn-submit" onclick="submitChallenge(2)">Submit Answer</button>
+      <button class="btn-clear" onclick="clearChallenge(2)">Clear Marks</button>
+      <button class="btn-skip" onclick="skipChallenge(2)">Skip Section</button>
+      <span class="marked-count" id="markcount-2">Lines flagged: <span>0</span></span>
+    </div>
+    <div class="answers-panel" id="answers-2"></div>
+  </div>
+
+  <!-- ════════════════════ CHALLENGE 4 ════════════════════ -->
+  <div class="challenge-panel" id="panel-3">
+    <div class="challenge-header">
+      <div class="challenge-meta">
+        <span class="badge badge-lang">Node.js</span>
+        <span class="badge badge-hard">Hard</span>
+        <span class="badge badge-dom">Promises / State</span>
+      </div>
+      <h1 class="challenge-title">Promise Pool with Cancellation &amp; Timeout</h1>
+      <p class="challenge-desc">A promise pool that runs async tasks with concurrency limits, per-task timeouts, and cooperative cancellation via AbortController. Deceptively simple — the bugs here are the kind that only appear under pressure.</p>
+    </div>
+
+    <div class="instructions">
+      <div class="instr-item"><div class="instr-icon click">⚑</div> Click any line to mark it as a suspected bug</div>
+      <div class="instr-item"><div class="instr-icon note">✎</div> Use the notes field to explain your findings</div>
+    </div>
+
+    <div class="code-wrapper">
+      <div class="code-titlebar">
+        <div class="code-dots">
+          <div class="code-dot" style="background:#ff5f57"></div>
+          <div class="code-dot" style="background:#febc2e"></div>
+          <div class="code-dot" style="background:#28c840"></div>
+        </div>
+        <span class="code-filename">promisePool.js</span>
+        <span class="code-hint">click a line to flag it</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table" id="code-3"></table>
+      </div>
+    </div>
+
+    <label class="notes-label">Your analysis & fixes</label>
+    <textarea class="notes-area" id="notes-3" placeholder="Describe the bugs you found, the conditions under which they manifest, and how you'd fix them…"></textarea>
+
+    <div class="submit-row">
+      <button class="btn-submit" onclick="submitChallenge(3)">Submit Answer</button>
+      <button class="btn-clear" onclick="clearChallenge(3)">Clear Marks</button>
+      <button class="btn-skip" onclick="skipChallenge(3)">Skip Section</button>
+      <span class="marked-count" id="markcount-3">Lines flagged: <span>0</span></span>
+    </div>
+    <div class="answers-panel" id="answers-3"></div>
+  </div>
+
+  <div class="final-results" id="finalResults"></div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  CODE SOURCES  (raw strings, syntax-highlighted inline)
+// ═══════════════════════════════════════════════════════
+
+const CHALLENGES = [
+
+// ── Challenge 0: Task Queue ──────────────────────────────────────
+{
+  bugLines: [63, 64, 97, 98, 123, 124, 125],   // 1-indexed
+  bugs: [
+    {
+      title: "Cache stampede — duplicate task execution",
+      location: "enqueue() → cache check, ~line 63",
+      bugLines: [63, 64],
+      explanation: "The cache check and enqueue are not atomic. When two callers invoke enqueue('A', task) concurrently — before either resolves — both see a cache miss and both push their tasks onto the queue. Both tasks execute, both cache their result, and both promises resolve. No error is thrown. The work is silently duplicated. If the task has side effects (charging a payment, writing to a DB, sending a notification), it fires twice.",
+      before: `if (this.cache.has(key)) {\n  return Promise.resolve(this.cache.get(key));\n}`,
+      after:  `if (this.cache.has(key))    return Promise.resolve(this.cache.get(key));\nif (this.inflight.has(key)) return this.inflight.get(key);\n\nconst p = new Promise((resolve, reject) => { … });\nthis.inflight.set(key, p);\n// in _execute: this.inflight.delete(item.key) after resolve/reject\nreturn p;`,
+      why: "This is the classic 'thundering herd' / cache stampede problem. The fix is an in-flight promise map: all concurrent callers for the same key share one promise. Only found by devs who have debugged duplicate payment charges or duplicate DB writes in production."
+    },
+    {
+      title: "Off-by-one in retry backoff — delay is always one step behind",
+      location: "_execute() catch block, ~line 97",
+      bugLines: [97, 98],
+      explanation: "The delay is computed BEFORE retries is incremented. With maxRetries=3: attempt 1 fails → delay=base*2^0=base*1, then retries becomes 1. Attempt 2 fails → delay=base*2^1, retries→2. Attempt 3 fails → delay=base*2^2, retries→3. Attempt 4 fails → retries=3, NOT < 3 → reject. So 4 total attempts are made (not 3), and every delay fires one step early. When maxRetries=1 the bug is most severe: only one retry fires with delay base*2^0 instead of base*2^1.",
+      before: `const delay = this.retryBaseMs * Math.pow(2, item.retries);\nitem.retries++;`,
+      after:  `item.retries++;\nconst delay = this.retryBaseMs * Math.pow(2, item.retries);`,
+      why: "Off-by-one bugs in retry counters are notoriously hard to find because the code 'works' — retries happen, backoff grows. The violation only matters when integrating with downstream rate-limited APIs where the backoff schedule is contractual, or when maxRetries is small."
+    },
+    {
+      title: "Concurrency overrun during retry window",
+      location: "_execute() finally block, ~line 123",
+      bugLines: [123, 124, 125],
+      explanation: "When a task fails and is re-queued via setTimeout, the finally block still runs and decrements this.running — freeing the concurrency slot immediately. That freed slot is filled by the next queued task. When the setTimeout fires and the retry executes, this.running is incremented again — but now both the gap-filler task AND the retry are running. With concurrency=2 and multiple flaky tasks, running can temporarily reach 3 or 4. This silently violates the concurrency contract and can exhaust DB connection pools or trigger downstream rate limits.",
+      before: `} finally {\n  this.running--;\n  this._scheduleDrain();\n}`,
+      after:  `// In catch, for retried items:\nsetTimeout(() => {\n  this.running--;   // release slot only when retry is actually queued\n  this.queue.push(item);\n  this._scheduleDrain();\n}, delay);\nreturn;  // skip finally decrement for retried items`,
+      why: "The overrun is transient and proportional to retry rate — it never causes wrong results, only resource exhaustion. Almost never caught in unit tests. Requires deliberate load testing with a concurrency monitor to observe."
+    }
+  ],
+  code: `'use strict';
+
+class TTLCache {
+  constructor(ttlMs = 5000) {
+    this.ttlMs   = ttlMs;
+    this.store   = new Map();
+  }
+
+  set(key, value) {
+    this.store.set(key, { value, expiresAt: Date.now() + this.ttlMs });
+  }
+
+  get(key) {
+    const entry = this.store.get(key);
+    if (!entry) return undefined;
+    if (Date.now() > entry.expiresAt) {
+      this.store.delete(key);
+      return undefined;
+    }
+    return entry.value;
+  }
+
+  has(key) { return this.get(key) !== undefined; }
+}
+
+class RateLimiter {
+  constructor(maxPerSecond) {
+    this.maxPerSecond = maxPerSecond;
+    this.tokens       = maxPerSecond;
+    this.lastRefill   = Date.now();
+  }
+
+  tryConsume() {
+    this._refill();
+    if (this.tokens >= 1) { this.tokens--; return true; }
+    return false;
+  }
+
+  _refill() {
+    const now     = Date.now();
+    const elapsed = (now - this.lastRefill) / 1000;
+    const add     = elapsed * this.maxPerSecond;
+    this.tokens   = Math.min(this.maxPerSecond, this.tokens + add);
+    this.lastRefill = now;
+  }
+}
+
+class AsyncTaskQueue {
+  constructor({ concurrency=5, maxRetries=3, retryBaseMs=100,
+                ratePerSecond=10, cacheTtlMs=5000 } = {}) {
+    this.concurrency = concurrency;
+    this.maxRetries  = maxRetries;
+    this.retryBaseMs = retryBaseMs;
+    this.queue       = [];
+    this.running     = 0;
+    this.cache       = new TTLCache(cacheTtlMs);
+    this.rateLimiter = new RateLimiter(ratePerSecond);
+    this._drainTimer = null;
+  }
+
+  enqueue(key, task) {
+    if (this.cache.has(key)) {
+      return Promise.resolve(this.cache.get(key));
+    }
+    return new Promise((resolve, reject) => {
+      this.queue.push({ task, key, resolve, reject, retries: 0 });
+      this._scheduleDrain();
+    });
+  }
+
+  _scheduleDrain() {
+    if (this._drainTimer) return;
+    this._drainTimer = setImmediate(() => {
+      this._drainTimer = null;
+      this._drain();
+    });
+  }
+
+  _drain() {
+    while (this.queue.length > 0 &&
+           this.running < this.concurrency &&
+           this.rateLimiter.tryConsume()) {
+      const item = this.queue.shift();
+      this._execute(item);
+    }
+    if (this.queue.length > 0) {
+      this._drainTimer = setTimeout(() => {
+        this._drainTimer = null;
+        this._drain();
+      }, 50);
+    }
+  }
+
+  async _execute(item) {
+    this.running++;
+    try {
+      const result = await item.task();
+      this.cache.set(item.key, result);
+      item.resolve(result);
+    } catch (err) {
+      if (item.retries < this.maxRetries) {
+        const delay = this.retryBaseMs * Math.pow(2, item.retries);
+        item.retries++;
+        setTimeout(() => {
+          this.queue.push(item);
+          this._scheduleDrain();
+        }, delay);
+      } else {
+        item.reject(err);
+      }
+    } finally {
+      this.running--;
+      this._scheduleDrain();
+    }
+  }
+}`
+},
+
+// ── Challenge 1: Event Emitter ────────────────────────────────────
+{
+  bugLines: [38, 39, 55, 56, 57, 88, 89],
+  bugs: [
+    {
+      title: "Mutating listeners array while iterating — skipped listeners",
+      location: "emit() → once-listener splice, ~line 38",
+      bugLines: [38, 39],
+      explanation: "When a once-listener fires, it splices itself out of the listeners array mid-iteration using the index from the original sorted copy. But if a previous listener in the same emit cycle added or removed other listeners (a common pattern), the index is stale. The splice hits the wrong position, a different listener gets removed, and the once-listener fires again on the next emit — or a permanent listener silently disappears.",
+      before: `listeners.forEach((l, idx) => {\n  l.fn(...args);\n  if (l.once) listeners.splice(idx, 1);`,
+      after:  `// snapshot before iteration; remove after loop\nconst snapshot = [...listeners];\nconst toRemove = [];\nfor (const l of snapshot) {\n  l.fn(...args);\n  if (l.once) toRemove.push(l);\n}\nthis._listeners[event] = listeners.filter(l => !toRemove.includes(l));`,
+      why: "Mutating a collection while iterating over it is a classic source of subtle, intermittent bugs. It passes every unit test where listeners don't modify the list, so it ships. In production, once-listeners start firing multiple times or permanent listeners vanish."
+    },
+    {
+      title: "Middleware next() called synchronously — async middleware broken",
+      location: "_runMiddleware() → next(), ~line 55",
+      bugLines: [55, 56, 57],
+      explanation: "The middleware runner calls next() synchronously inside the loop. If any middleware function is async and awaits something before calling next(), the loop has already moved past that index — the middleware chain fires out of order and may call the final callback before all middleware has resolved. An async auth middleware that awaits a token check will appear to pass silently even if it should have blocked.",
+      before: `for (let i = 0; i < mws.length; i++) {\n  mws[i](event, args, () => {});\n}`,
+      after:  `// Recursive async chain\nasync function runChain(i) {\n  if (i >= mws.length) return;\n  await mws[i](event, args, () => runChain(i + 1));\n}\nawait runChain(0);`,
+      why: "Synchronous middleware chains look identical to async ones in the happy path — middleware without await passes straight through. The bug only surfaces when async middleware is introduced, often long after the emitter was written."
+    },
+    {
+      title: "Priority sort is not stable — equal-priority listeners reorder on every emit",
+      location: "on() → sort, ~line 88",
+      bugLines: [88, 89],
+      explanation: "The sort uses a simple (a.priority - b.priority) comparator. JavaScript's Array.sort is not guaranteed to be stable for equal elements in all runtimes (pre-V8 7.0 / Node 11). For listeners with equal priority, their relative order shuffles non-deterministically on each emit. A listener that must run before another at the same priority level will sometimes run after it — a bug that appears randomly and is nearly impossible to reproduce.",
+      before: `this._listeners[event].sort((a, b) => a.priority - b.priority);`,
+      after:  `// Stable sort: preserve insertion order for equal priorities\nthis._listeners[event].sort((a, b) =>\n  a.priority !== b.priority ? a.priority - b.priority : a._seq - b._seq\n);\n// add this._seq = this._insertionCounter++ when pushing each listener`,
+      why: "Non-stable sort bugs are notoriously hard to reproduce because they're runtime-version dependent and only affect equal-priority cases. They often pass all tests (which use distinct priorities) and surface in production as intermittent ordering glitches."
+    }
+  ],
+  code: `'use strict';
+
+class EventEmitter {
+  constructor() {
+    this._listeners   = {};
+    this._middleware  = {};
+    this._counter     = 0;
+  }
+
+  on(event, fn, { once = false, priority = 0 } = {}) {
+    if (!this._listeners[event]) this._listeners[event] = [];
+    this._listeners[event].push({ fn, once, priority, id: ++this._counter });
+    this._listeners[event].sort((a, b) => a.priority - b.priority);
+    return this._counter;
+  }
+
+  once(event, fn, opts = {}) {
+    return this.on(event, fn, { ...opts, once: true });
+  }
+
+  off(event, id) {
+    if (!this._listeners[event]) return;
+    this._listeners[event] = this._listeners[event].filter(l => l.id !== id);
+  }
+
+  use(event, middlewareFn) {
+    if (!this._middleware[event]) this._middleware[event] = [];
+    this._middleware[event].push(middlewareFn);
+  }
+
+  emit(event, ...args) {
+    this._runMiddleware(event, args);
+    const listeners = this._listeners[event] || [];
+    listeners.forEach((l, idx) => {
+      l.fn(...args);
+      if (l.once) listeners.splice(idx, 1);
+    });
+  }
+
+  _runMiddleware(event, args) {
+    const mws = this._middleware[event] || [];
+    for (let i = 0; i < mws.length; i++) {
+      mws[i](event, args, () => {});
+    }
+  }
+
+  listenerCount(event) {
+    return (this._listeners[event] || []).length;
+  }
+
+  removeAllListeners(event) {
+    if (event) {
+      delete this._listeners[event];
+      delete this._middleware[event];
+    } else {
+      this._listeners  = {};
+      this._middleware = {};
+    }
+  }
+}`
+},
+
+// ── Challenge 2: LRU Cache ────────────────────────────────────────
+{
+  bugLines: [44, 45, 70, 71, 72, 95, 96],
+  bugs: [
+    {
+      title: "get() promotes node before checking expiry — stale data served & LRU order corrupted",
+      location: "get() → promote then check TTL, ~line 44",
+      bugLines: [44, 45],
+      explanation: "get() calls _promote(key) to move the node to the front of the LRU list before checking whether the entry has expired. If the entry IS expired, it gets deleted — but the promotion has already moved it to the head, corrupting the doubly-linked list: the head pointer points to a node that no longer exists in the map. Subsequent evictions will attempt to remove a ghost node, either throwing or silently evicting the wrong key.",
+      before: `get(key) {\n  this._promote(key);\n  const node = this.map.get(key);`,
+      after:  `get(key) {\n  const node = this.map.get(key);\n  if (!node) return undefined;\n  if (node.expiresAt && Date.now() > node.expiresAt) {\n    this._delete(key); return undefined;\n  }\n  this._promote(key);\n  return node.value;\n}`,
+      why: "Promote-before-validate is an easy mistake when adding TTL support to an existing LRU. The linked-list corruption is a time-bomb: it doesn't crash immediately, but causes wrong evictions minutes later when unrelated keys are accessed."
+    },
+    {
+      title: "Frequency score uses integer division — all low-freq items score identically",
+      location: "_evictionScore() → Math.floor truncation, ~line 70",
+      bugLines: [70, 71, 72],
+      explanation: "The eviction score is computed as Math.floor(age / node.freq). For items with freq < the age-in-ms (almost always true — freq is an access count, age is milliseconds), the score is always the same large integer because integer division of a large number by a small one loses the fractional part. Items accessed 1 vs 5 times get scores of 50000 vs 10000 respectively when age=50000ms — the frequency weighting is effectively destroyed for anything accessed fewer than ~50 times.",
+      before: `_evictionScore(node) {\n  const age = Date.now() - node.createdAt;\n  return Math.floor(age / node.freq);\n}`,
+      after:  `_evictionScore(node) {\n  const ageSeconds = (Date.now() - node.createdAt) / 1000;\n  return ageSeconds / Math.log2(node.freq + 1);\n  // log dampening prevents very-high-freq items from dominating\n}`,
+      why: "The bug looks intentional — it reads like reasonable integer arithmetic. It only matters when two items have significantly different access frequencies, which is exactly when you'd want frequency-weighted eviction to kick in."
+    },
+    {
+      title: "_delete() does not relink doubly-linked list — memory leak & infinite loop risk",
+      location: "_delete() → missing prev/next relink, ~line 95",
+      bugLines: [95, 96],
+      explanation: "When a node is deleted, the method removes it from the map and nulls its own prev/next — but does NOT update node.prev.next and node.next.prev to skip over the deleted node. The neighboring nodes still point to the deleted node. When _evict() walks the tail of the list looking for the LRU candidate, it will revisit the deleted node (now a ghost), loop forever, or attempt to delete a key that no longer exists in the map — causing a silent no-op eviction that lets the cache grow past capacity.",
+      before: `_delete(key) {\n  const node = this.map.get(key);\n  if (!node) return;\n  node.prev = node.next = null;\n  this.map.delete(key);\n}`,
+      after:  `_delete(key) {\n  const node = this.map.get(key);\n  if (!node) return;\n  if (node.prev) node.prev.next = node.next;\n  else this.head = node.next;\n  if (node.next) node.next.prev = node.prev;\n  else this.tail = node.prev;\n  node.prev = node.next = null;\n  this.map.delete(key);\n  this.size--;\n}`,
+      why: "Doubly-linked list pointer bugs are among the most dangerous low-level bugs: they corrupt data structure invariants silently, cause intermittent infinite loops or wrong evictions much later, and are extremely hard to attribute to the original delete call."
+    }
+  ],
+  code: `'use strict';
+
+class LRUCache {
+  constructor(capacity, defaultTtlMs = 0) {
+    this.capacity    = capacity;
+    this.defaultTtl  = defaultTtlMs;
+    this.map         = new Map();
+    this.size        = 0;
+    this.head        = null;   // most recently used
+    this.tail        = null;   // least recently used
+  }
+
+  set(key, value, ttlMs) {
+    if (this.map.has(key)) {
+      this._delete(key);
+    } else if (this.size >= this.capacity) {
+      this._evict();
+    }
+    const ttl = ttlMs ?? this.defaultTtl;
+    const node = {
+      key, value,
+      freq:      1,
+      createdAt: Date.now(),
+      expiresAt: ttl > 0 ? Date.now() + ttl : null,
+      prev: null, next: null
+    };
+    this._prepend(node);
+    this.map.set(key, node);
+    this.size++;
+  }
+
+  get(key) {
+    this._promote(key);
+    const node = this.map.get(key);
+    if (!node) return undefined;
+    if (node.expiresAt && Date.now() > node.expiresAt) {
+      this._delete(key);
+      return undefined;
+    }
+    node.freq++;
+    return node.value;
+  }
+
+  has(key) {
+    return this.map.has(key) && this.get(key) !== undefined;
+  }
+
+  _promote(key) {
+    const node = this.map.get(key);
+    if (!node) return;
+    if (node === this.head) return;
+    if (node.prev) node.prev.next = node.next;
+    if (node.next) node.next.prev = node.prev;
+    if (node === this.tail) this.tail = node.prev;
+    this._prepend(node);
+  }
+
+  _evict() {
+    let candidate = this.tail;
+    let node      = this.tail;
+    let bestScore = -Infinity;
+    const scanDepth = Math.min(this.size, 8);
+    for (let i = 0; i < scanDepth && node; i++) {
+      const score = this._evictionScore(node);
+      if (score > bestScore) { bestScore = score; candidate = node; }
+      node = node.prev;
+    }
+    if (candidate) this._delete(candidate.key);
+  }
+
+  _evictionScore(node) {
+    const age = Date.now() - node.createdAt;
+    return Math.floor(age / node.freq);
+  }
+
+  _prepend(node) {
+    node.prev = null;
+    node.next = this.head;
+    if (this.head) this.head.prev = node;
+    this.head = node;
+    if (!this.tail) this.tail = node;
+  }
+
+  _delete(key) {
+    const node = this.map.get(key);
+    if (!node) return;
+    node.prev = node.next = null;
+    this.map.delete(key);
+  }
+}`
+},
+
+// ── Challenge 3: Promise Pool ──────────────────────────────────────
+{
+  bugLines: [47, 48, 63, 64, 65, 84, 85],
+  bugs: [
+    {
+      title: "AbortController signal checked once — already-resolved tasks not cancelled",
+      location: "_runTask() → signal check position, ~line 47",
+      bugLines: [47, 48],
+      explanation: "The abort signal is only checked once, synchronously, at the start of _runTask(). If abort() is called after the task has already started awaiting (e.g. a slow network call), the task runs to completion. The abort is silently ignored. Worse: the task's result is still pushed to this.results even though the pool was told to abort — leading to a partial result set that looks like a complete one.",
+      before: `async _runTask(taskFn, index) {\n  if (this.signal?.aborted) { this.errors[index] = new Error('Aborted'); return; }`,
+      after:  `async _runTask(taskFn, index) {\n  if (this.signal?.aborted) { this.errors[index] = new Error('Aborted'); return; }\n  // Also wrap the task in an abort-race:\n  const result = await Promise.race([\n    taskFn(),\n    new Promise((_, reject) =>\n      this.signal?.addEventListener('abort', () => reject(new Error('Aborted')))\n    )\n  ]);\n}`,
+      why: "One-shot abort checks are a common misconception about AbortController. The signal is not a barrier — it's a live flag. Tasks that are mid-flight when abort() is called must race against the signal, otherwise partial results silently contaminate the output."
+    },
+    {
+      title: "Timeout clearTimeout not called on early resolution — timer fires after pool completes",
+      location: "_runTask() → timeout path, ~line 63",
+      bugLines: [63, 64, 65],
+      explanation: "Each task sets a setTimeout for its timeout duration. If the task resolves before the timeout, the timer is never cleared. The setTimeout callback fires later, decrements this.running again (to -1), and calls this._next() — which dequeues and starts a task that was never supposed to run, or corrupts the running count permanently. With 10 tasks all resolving in 10ms with a 5000ms timeout, 10 ghost timers fire 5 seconds later.",
+      before: `const timer = setTimeout(() => {\n  this.errors[index] = new Error('Timeout');\n  this.running--; this._next();\n}, this.timeoutMs);`,
+      after:  `let timer;\nconst taskPromise = taskFn();\nconst timeoutPromise = new Promise((_, reject) => {\n  timer = setTimeout(() => reject(new Error('Timeout')), this.timeoutMs);\n});\ntry {\n  const result = await Promise.race([taskPromise, timeoutPromise]);\n  clearTimeout(timer);\n  this.results[index] = result;\n} catch(e) {\n  clearTimeout(timer);\n  this.errors[index] = e;\n}`,
+      why: "Missing clearTimeout is invisible in tests that run in <5 seconds. In production, the ghost timers fire after the pool has already resolved its output promise — causing cryptic 'running count is -3' state corruption that appears unrelated to the original pool call."
+    },
+    {
+      title: "all() resolves before all tasks settle — race between resolution and last _next()",
+      location: "all() → resolve condition, ~line 84",
+      bugLines: [84, 85],
+      explanation: "The master promise resolves when this.completed === this.tasks.length. But 'completed' is incremented inside _runTask() after await, while _next() is called synchronously in the finally block. In rare scheduling windows — particularly when the last task in the queue resolves at the same tick as a slot opens — the resolve check fires before the last _next() call has a chance to start the final pending task. The returned results array has undefined holes.",
+      before: `if (this.completed === this.tasks.length) {\n  resolve({ results: this.results, errors: this.errors });\n}`,
+      after:  `// Resolve only when completed + still-running both account for all tasks\nif (this.completed + this.running === this.tasks.length &&\n    this.index >= this.tasks.length) {\n  resolve({ results: this.results, errors: this.errors });\n}`,
+      why: "Promise resolution races are nearly impossible to reproduce in tests because they depend on microtask queue ordering. They appear in production under load when the JS event loop is saturated and scheduling becomes non-deterministic."
+    }
+  ],
+  code: `'use strict';
+
+class PromisePool {
+  constructor(tasks, { concurrency = 4, timeoutMs = 5000, signal = null } = {}) {
+    this.tasks       = tasks;
+    this.concurrency = concurrency;
+    this.timeoutMs   = timeoutMs;
+    this.signal      = signal;
+    this.results     = new Array(tasks.length);
+    this.errors      = new Array(tasks.length);
+    this.index       = 0;
+    this.running     = 0;
+    this.completed   = 0;
+  }
+
+  all() {
+    return new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject  = reject;
+
+      if (this.tasks.length === 0) {
+        return resolve({ results: [], errors: [] });
+      }
+
+      const initial = Math.min(this.concurrency, this.tasks.length);
+      for (let i = 0; i < initial; i++) this._next();
+    });
+  }
+
+  _next() {
+    if (this.index >= this.tasks.length) return;
+    const idx = this.index++;
+    this.running++;
+    this._runTask(this.tasks[idx], idx);
+  }
+
+  async _runTask(taskFn, index) {
+    if (this.signal?.aborted) {
+      this.errors[index] = new Error('Aborted');
+      return;
+    }
+    try {
+      const timer = setTimeout(() => {
+        this.errors[index] = new Error('Timeout');
+        this.running--;
+        this._next();
+      }, this.timeoutMs);
+      const result = await taskFn();
+      this.results[index] = result;
+    } catch (err) {
+      this.errors[index] = err;
+    } finally {
+      this.running--;
+      this.completed++;
+      if (this.completed === this.tasks.length) {
+        this._resolve({ results: this.results, errors: this.errors });
+      } else {
+        this._next();
+      }
+    }
+  }
+
+  static run(tasks, opts) {
+    return new PromisePool(tasks, opts).all();
+  }
+}`
+}
+
+]; // end CHALLENGES
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const state = {
+  marked:    CHALLENGES.map(() => new Set()),
+  submitted: CHALLENGES.map(() => false),
+  skipped:   CHALLENGES.map(() => false),
+  scores:    CHALLENGES.map(() => ({ found: 0, total: 0 })),
+  current:   0,
+  finalized: false,
+  remainingSeconds: 15 * 60,
+  timerId: null,
+};
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  const nav   = document.getElementById('challengeNav');
+  const pills = document.getElementById('progressPills');
+  const names = ['Task Queue', 'Event Emitter', 'LRU Cache', 'Promise Pool'];
+
+  CHALLENGES.forEach((ch, i) => {
+    // Tab
+    const tab = document.createElement('button');
+    tab.className = 'challenge-tab' + (i === 0 ? ' active' : '');
+    tab.textContent = `${i+1}. ${names[i]}`;
+    tab.onclick = () => switchTab(i);
+    tab.id = `tab-${i}`;
+    nav.appendChild(tab);
+
+    // Progress pill
+    const pill = document.createElement('div');
+    pill.className = 'progress-pill' + (i === 0 ? ' active' : '');
+    pill.id = `pill-${i}`;
+    pills.appendChild(pill);
+
+    // Build code table
+    buildCodeTable(i, ch.code);
+  });
+  updateProgress();
+  startTimer();
+}
+
+function switchTab(idx) {
+  if (state.finalized) return;
+  if (idx !== state.current) return;
+  CHALLENGES.forEach((_, i) => {
+    document.getElementById(`panel-${i}`).classList.toggle('active', i === idx);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  CHALLENGES.forEach((_, i) => {
+    const tab  = document.getElementById(`tab-${i}`);
+    const pill = document.getElementById(`pill-${i}`);
+    if (!tab || !pill) return;
+    const isActive = i === state.current && !state.finalized;
+    tab.classList.toggle('active', isActive);
+    tab.classList.toggle('completed', state.submitted[i] && !state.skipped[i]);
+    tab.classList.toggle('skipped', state.skipped[i]);
+    tab.classList.toggle('locked', !isActive || state.finalized);
+    pill.className = 'progress-pill';
+    if (isActive) pill.classList.add('active');
+    if (state.submitted[i] && !state.skipped[i]) pill.classList.add('done');
+    if (state.skipped[i]) pill.style.background = 'var(--yellow)';
+    else pill.style.background = '';
+  });
+}
+
+function startTimer() {
+  updateTimerDisplay();
+  state.timerId = setInterval(() => {
+    if (state.finalized) return clearInterval(state.timerId);
+    state.remainingSeconds--;
+    updateTimerDisplay();
+    if (state.remainingSeconds <= 0) finalizeTest('Time expired');
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const timer = document.getElementById('timer');
+  const value = document.getElementById('timerValue');
+  const remaining = Math.max(0, state.remainingSeconds);
+  const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+  const secs = String(remaining % 60).padStart(2, '0');
+  value.textContent = `${mins}:${secs}`;
+  timer.classList.toggle('warning', remaining <= 5 * 60 && remaining > 60);
+  timer.classList.toggle('danger', remaining <= 60);
+}
+
+// ═══════════════════════════════════════════════════════
+//  CODE TABLE
+// ═══════════════════════════════════════════════════════
+function buildCodeTable(cIdx, code) {
+  const table = document.getElementById(`code-${cIdx}`);
+  const lines = code.split('\n');
+  lines.forEach((rawLine, i) => {
+    const lineNum = i + 1;
+    const tr = document.createElement('tr');
+    tr.dataset.line = lineNum;
+    tr.innerHTML = `<td class="ln">${lineNum}</td><td class="code-line">${highlight(rawLine)}</td>`;
+    tr.onclick = () => toggleMark(cIdx, lineNum, tr);
+    table.appendChild(tr);
+  });
+}
+
+function toggleMark(cIdx, lineNum, tr) {
+  if (state.finalized || state.submitted[cIdx] || cIdx !== state.current) return;
+  const s = state.marked[cIdx];
+  if (s.has(lineNum)) { s.delete(lineNum); tr.classList.remove('marked'); }
+  else                { s.add(lineNum);    tr.classList.add('marked'); }
+  document.querySelector(`#markcount-${cIdx} span`).textContent = s.size;
+}
+
+function clearChallenge(cIdx) {
+  if (state.finalized || state.submitted[cIdx] || cIdx !== state.current) return;
+  state.marked[cIdx].clear();
+  document.querySelectorAll(`#code-${cIdx} tr`).forEach(tr => tr.classList.remove('marked'));
+  document.querySelector(`#markcount-${cIdx} span`).textContent = 0;
+  document.getElementById(`notes-${cIdx}`).value = '';
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUBMIT
+// ═══════════════════════════════════════════════════════
+function submitChallenge(cIdx) {
+  completeChallenge(cIdx, false);
+}
+
+function skipChallenge(cIdx) {
+  completeChallenge(cIdx, true);
+}
+
+function completeChallenge(cIdx, skipped) {
+  if (state.finalized || state.submitted[cIdx] || cIdx !== state.current) return;
+  state.submitted[cIdx] = true;
+  state.skipped[cIdx] = skipped;
+
+  const ch = CHALLENGES[cIdx];
+  state.scores[cIdx] = skipped ? { found: 0, total: ch.bugs.length } : scoreChallenge(cIdx);
+  lockChallenge(cIdx);
+
+  const next = nextOpenChallenge();
+  if (next === -1) finalizeTest('Submitted');
+  else {
+    state.current = next;
+    switchTab(next);
+  }
+}
+
+function scoreChallenge(cIdx) {
+  const ch = CHALLENGES[cIdx];
+  const marked = state.marked[cIdx];
+  let found = 0;
+  ch.bugs.forEach(bug => {
+    if (bug.bugLines.some(l => marked.has(l))) found++;
+  });
+  return { found, total: ch.bugs.length };
+}
+
+function lockChallenge(cIdx) {
+  document.querySelector(`#panel-${cIdx} .btn-submit`).disabled = true;
+  document.querySelector(`#panel-${cIdx} .btn-clear`).disabled  = true;
+  document.querySelector(`#panel-${cIdx} .btn-skip`).disabled   = true;
+  document.getElementById(`notes-${cIdx}`).readOnly = true;
+}
+
+function nextOpenChallenge() {
+  return CHALLENGES.findIndex((_, i) => !state.submitted[i]);
+}
+
+function finalizeTest(reason) {
+  if (state.finalized) return;
+  state.finalized = true;
+  clearInterval(state.timerId);
+  state.remainingSeconds = Math.max(0, state.remainingSeconds);
+  updateTimerDisplay();
+
+  CHALLENGES.forEach((ch, i) => {
+    if (!state.submitted[i]) {
+      state.submitted[i] = true;
+      state.skipped[i] = true;
+      state.scores[i] = { found: 0, total: ch.bugs.length };
+    }
+    lockChallenge(i);
+    revealCorrectLines(i);
+    document.getElementById(`panel-${i}`).classList.remove('active');
+  });
+
+  updateProgress();
+  renderFinalResults(reason);
+}
+
+function revealCorrectLines(cIdx) {
+  CHALLENGES[cIdx].bugs.forEach(bug => {
+    bug.bugLines.forEach(l => {
+      const row = document.querySelector(`#code-${cIdx} tr[data-line="${l}"]`);
+      if (row) row.classList.add('answer-line-highlight');
+    });
+  });
+}
+
+function renderFinalResults(reason) {
+  const panel = document.getElementById('finalResults');
+  const totalFound = state.scores.reduce((sum, s) => sum + s.found, 0);
+  const totalBugs = state.scores.reduce((sum, s) => sum + s.total, 0);
+  const skippedCount = state.skipped.filter(Boolean).length;
+  const pct = Math.round((totalFound / Math.max(totalBugs, 1)) * 100);
+  let verdictClass = 'low', verdictText = 'Needs improvement', verdictDetail = `${totalFound} of ${totalBugs} bugs found.`;
+  if (pct >= 85) { verdictClass = ''; verdictText = 'Strong candidate'; verdictDetail = `${totalFound} of ${totalBugs} bugs found with strong production-level reasoning.`; }
+  else if (pct >= 60) { verdictClass = 'mid'; verdictText = 'Good candidate'; verdictDetail = `${totalFound} of ${totalBugs} bugs found. Solid instincts, with some missed edge cases.`; }
+
+  panel.innerHTML = `
+    <div class="answers-divider">
+      <div class="answers-divider-line"></div>
+      <span class="answers-divider-label">Final Results</span>
+      <div class="answers-divider-line"></div>
+    </div>
+    <div class="score-bar">
+      <div class="score-circle ${verdictClass}">${totalFound}/${totalBugs}</div>
+      <div class="score-info">
+        <div class="score-verdict">${verdictText}</div>
+        <div class="score-detail">${verdictDetail} ${skippedCount ? `${skippedCount} section${skippedCount === 1 ? '' : 's'} skipped. ` : ''}Reason: ${reason}.</div>
+      </div>
+    </div>
+    ${CHALLENGES.map((ch, i) => renderChallengeResults(i, ch)).join('')}
+  `;
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderChallengeResults(cIdx, ch) {
+  const names = ['Task Queue', 'Event Emitter', 'LRU Cache', 'Promise Pool'];
+  const score = state.scores[cIdx];
+  const status = state.skipped[cIdx] ? 'Skipped' : `${score.found}/${score.total} found`;
+
+  let bugHTML = '';
+  ch.bugs.forEach((bug, i) => {
+    const marked = state.marked[cIdx];
+    const wasFound = !state.skipped[cIdx] && bug.bugLines.some(l => marked.has(l));
+    bugHTML += `
+    <div class="bug-card">
+      <div class="bug-card-header">
+        <div class="bug-number">${i + 1}</div>
+        <div>
+          <div class="bug-title">${bug.title}</div>
+          <div class="bug-location">${bug.location}</div>
+        </div>
+        <span class="bug-found-badge ${wasFound ? 'found' : 'missed'}">${wasFound ? '✓ Found' : '✗ Missed'}</span>
+      </div>
+      <div class="bug-card-body">
+        <div class="bug-section-label">What's wrong</div>
+        <p class="bug-explanation">${bug.explanation}</p>
+
+        <div class="bug-section-label">Before → After</div>
+        <div class="bug-code-snippet">${formatDiff(bug.before, bug.after)}</div>
+
+        <div class="bug-why">
+          <div class="bug-why-label">Why it matters</div>
+          <p>${bug.why}</p>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  return `
+    <h2 class="result-section-title">${cIdx + 1}. ${names[cIdx]} <span>${status}</span></h2>
+    ${bugHTML}
+  `;
+}
+
+function formatDiff(before, after) {
+  let html = '';
+  before.split('\n').forEach(l => {
+    html += `<span class="code-del">- ${escHtml(l)}</span>`;
+  });
+  after.split('\n').forEach(l => {
+    html += `<span class="code-add">+ ${escHtml(l)}</span>`;
+  });
+  return html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SYNTAX HIGHLIGHT (lightweight)
+// ═══════════════════════════════════════════════════════
+function highlight(line) {
+  let s = escHtml(line);
+  const tokens = [];
+  const hold = (html) => {
+    const token = String.fromCharCode(0xE000 + tokens.length);
+    tokens.push(html);
+    return token;
+  };
+
+  // protect strings/comments before adding any HTML tags
+  s = s.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g,
+                m => hold(`<span class="str">${m}</span>`));
+  s = s.replace(/(\/\/.*$)/g, m => hold(`<span class="cmt">${m}</span>`));
+
+  // keywords
+  const kws = ['const','let','var','return','new','this','class','extends',
+                'async','await','if','else','for','while','try','catch',
+                'finally','throw','import','export','default','function',
+                'static','null','undefined','true','false','typeof','of','in'];
+  const kwPattern = kws.join('|');
+  const codePattern = new RegExp(`(===|!==|=>|\\.\\.\\.)|\\b(${kwPattern})\\b|\\b([A-Z][A-Za-z0-9]+)\\b|\\b(\\d+(?:\\.\\d+)?)\\b|\\b([a-z_][A-Za-z0-9_]*)\\s*(?=\\()`, 'g');
+  s = s.replace(codePattern, (m, op, kw, cls, num, fn) => {
+    if (op) return `<span class="op">${op}</span>`;
+    if (kw) return `<span class="kw">${kw}</span>`;
+    if (cls) return `<span class="cls">${cls}</span>`;
+    if (num) return `<span class="num">${num}</span>`;
+    if (fn) return `<span class="fn">${fn}</span>`;
+    return m;
+  });
+
+  return s.replace(/[\uE000-\uF8FF]/g, ch => tokens[ch.charCodeAt(0) - 0xE000] || ch);
+}
+
+// ─── Boot ───
+init();
+</script>
+</body>
+</html>
